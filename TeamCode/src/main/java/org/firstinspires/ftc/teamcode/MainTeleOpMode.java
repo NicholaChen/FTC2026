@@ -7,6 +7,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvWebcam;
+
+import java.util.List;
+
 @TeleOp(name="Main OpMode", group="Main")
 public class MainTeleOpMode extends OpMode {
     private FtcDashboard dash = FtcDashboard.getInstance();
@@ -17,6 +25,8 @@ public class MainTeleOpMode extends OpMode {
     private DcMotor backRight = null;
     private DcMotor intake = null;
 
+    private CameraVision cameraVision;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -24,7 +34,7 @@ public class MainTeleOpMode extends OpMode {
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, dash.getTelemetry());
 
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "Initializing");
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
@@ -39,15 +49,27 @@ public class MainTeleOpMode extends OpMode {
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
+
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         intake.setDirection(DcMotor.Direction.FORWARD);
+
+        cameraVision = new CameraVision(hardwareMap, telemetry);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+
+        //RobotCamera robotCamera = new RobotCamera();
+
+
     }
 
     /*
@@ -73,7 +95,7 @@ public class MainTeleOpMode extends OpMode {
         double max;
 
         // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-        double axial   =  gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+        double axial   =  -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
         double lateral =  gamepad1.left_stick_x;
         double yaw     =  gamepad1.right_stick_x;
 
@@ -110,7 +132,8 @@ public class MainTeleOpMode extends OpMode {
         } else {
             intake.setPower(0.0);
         }
-
+        List<AprilTagDetection> detections = cameraVision.detect();
+        telemetry.addData("aprilTags", detections.size());
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
