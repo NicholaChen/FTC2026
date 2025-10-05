@@ -4,26 +4,21 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
 
-@TeleOp(name="Main OpMode", group="Main")
-public class MainTeleOpMode extends OpMode {
-    private FtcDashboard dash = FtcDashboard.getInstance();
-    private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor frontLeft = null;
-    private DcMotor backLeft = null;
-    private DcMotor frontRight = null;
-    private DcMotor backRight = null;
-    private DcMotor intake = null;
+@TeleOp(name="Main TeleOp", group="Main")
+public class MainTeleOp extends OpMode {
+    private final FtcDashboard dash = FtcDashboard.getInstance();
+    private final ElapsedTime runtime = new ElapsedTime();
+    private DcMotor frontLeft;
+    private DcMotor backLeft;
+    private DcMotor frontRight;
+    private DcMotor backRight;
+    private DcMotor intake;
 
     private CameraVision cameraVision;
 
@@ -66,30 +61,18 @@ public class MainTeleOpMode extends OpMode {
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-
-        //RobotCamera robotCamera = new RobotCamera();
-
-
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits INIT, but before they hit START
-     */
     @Override
     public void init_loop() {
     }
 
-    /*
-     * Code to run ONCE when the driver hits START
-     */
     @Override
     public void start() {
         runtime.reset();
     }
 
-    /*
-     * Code to run REPEATEDLY after the driver hits START but before they hit STOP
-     */
+
     @Override
     public void loop() {
         double max;
@@ -141,9 +124,6 @@ public class MainTeleOpMode extends OpMode {
         telemetry.update();
     }
 
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
     @Override
     public void stop() {
     }
