@@ -99,14 +99,14 @@ public class CameraVision {
         List<AprilTagDetection> detections = aprilTag.getDetections();
         for (int i= 0; i<detections.size(); i++) {
             int tagID = detections.get(i).id;
-            if (tagID == 1) {
-                return 1;
+            if (tagID == 21) {
+                return 21;
             }
-            if (tagID == 2) {
-                return 2;
+            if (tagID == 22) {
+                return 22;
             }
-            if (tagID == 3) {
-                return 3;
+            if (tagID == 23) {
+                return 23;
             }
         }
         return 0;
