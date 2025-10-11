@@ -1,4 +1,19 @@
 # FTC Team 22689
+## Connections
+### Control Hub
+- USB 3.0: Webcam 
+- Motor Port 0: Front Left Motor
+- Motor Port 1: Front Right Motor
+- Motor Port 2: Back Left Motor
+- Motor Port 3: Back Right Motor
+- I2C0: (IMU)
+- I2C1: Colour Sensor
+- I2C2: Pinpoint Computer
+- RS485: Expansion Hub
+### Expansion Hub
+- Motor Port 0: Outtake Motor
+- Motor Port 1: Intake Motor
+- RS485: Control Hub
 ## TODO
 ### General
 - [X] Get motors working
@@ -14,9 +29,9 @@
 - [ ] Optimize control loop (read only necessary sensors, ...)
 - [ ] Finish `MainTeleOp`
 - [ ] Finish `MainAuto`
-### Roadrunner
-- [ ] Configure road runner for pinpoint computer + imu
-- [ ] Road runner tuning
+### Road Runner
+- [ ] Configure Road Runner for pinpoint computer + imu
+- [ ] Road Runner tuning
 - [ ] Integrate road runner in TeleOp and Auto
 - [ ] Sensor fusion with vision (AprilTag pose estimation)
 ### Vision/Webcam

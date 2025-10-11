@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -6,11 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-
-import java.util.List;
-
-@TeleOp(name="Main TeleOp", group="Main")
+@TeleOp(name = "Main TeleOp", group = "Main")
 public class MainTeleOp extends OpMode {
     private final FtcDashboard dash = FtcDashboard.getInstance();
     private final ElapsedTime runtime = new ElapsedTime();
@@ -19,6 +16,7 @@ public class MainTeleOp extends OpMode {
     private DcMotor frontRight;
     private DcMotor backRight;
     private DcMotor intake;
+    private BallLaunch ballLaunch;
 
     private CameraVision cameraVision;
 
@@ -55,8 +53,8 @@ public class MainTeleOp extends OpMode {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         intake.setDirection(DcMotor.Direction.FORWARD);
-
-        cameraVision = new CameraVision(hardwareMap, telemetry);
+        ballLaunch = new BallLaunch(hardwareMap, telemetry);
+        //cameraVision = new CameraVision(hardwareMap, telemetry);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -78,16 +76,16 @@ public class MainTeleOp extends OpMode {
         double max;
 
         // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-        double axial   =  -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-        double lateral =  gamepad1.left_stick_x;
-        double yaw     =  gamepad1.right_stick_x;
+        double axial = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+        double lateral = gamepad1.left_stick_x * 1.1;
+        double yaw = gamepad1.right_stick_x;
 
         // Combine the joystick requests for each axis-motion to determine each wheel's power.
         // Set up a variable for each drive wheel to save the power level for telemetry.
-        double frontLeftPower  = axial + lateral + yaw;
+        double frontLeftPower = axial + lateral + yaw;
         double frontRightPower = axial - lateral - yaw;
-        double backLeftPower   = axial - lateral + yaw;
-        double backRightPower  = axial + lateral - yaw;
+        double backLeftPower = axial - lateral + yaw;
+        double backRightPower = axial + lateral - yaw;
 
         // Normalize the values so no wheel power exceeds 100%
         // This ensures that the robot maintains the desired motion.
@@ -96,10 +94,10 @@ public class MainTeleOp extends OpMode {
         max = Math.max(max, Math.abs(backRightPower));
 
         if (max > 1.0) {
-            frontLeftPower  /= max;
+            frontLeftPower /= max;
             frontRightPower /= max;
-            backLeftPower   /= max;
-            backRightPower  /= max;
+            backLeftPower /= max;
+            backRightPower /= max;
         }
 
         // Show the elapsed game time and wheel power.
@@ -115,10 +113,16 @@ public class MainTeleOp extends OpMode {
         } else {
             intake.setPower(0.0);
         }
-        List<AprilTagDetection> detections = cameraVision.detect();
-        telemetry.addData("aprilTags", detections.size());
+
+        if (gamepad1.dpad_up) {
+            ballLaunch.start();
+        } else {
+            ballLaunch.stop();
+        }
+        //List<AprilTagDetection> detections = cameraVision.detect();
+        //telemetry.addData("aprilTags", detections.size());
         // Show the elapsed game time and wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("Status", "Run Time: " + runtime);
         telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
         telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
         telemetry.update();

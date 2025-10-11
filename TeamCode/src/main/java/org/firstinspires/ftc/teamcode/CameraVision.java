@@ -2,13 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.stream.CameraStreamSource;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -17,16 +17,17 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
 
+@Config
 public class CameraVision {
-    private AprilTagProcessor aprilTag;
+    private final AprilTagProcessor aprilTag;
+    public static String CAMERA_NAME = "Webcam 1";
 
-    /**
-     * The variable to store our instance of the vision portal.
-     */
-    private VisionPortal visionPortal;
-    public CameraVision(HardwareMap hardwareMap, Telemetry telemetry) {
+    private Telemetry telemetry;
+    public CameraVision(HardwareMap hardwareMap, Telemetry telemetry_) {
+        telemetry = telemetry_;
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        OpenCvWebcam camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        OpenCvWebcam camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, CAMERA_NAME), cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(camera, 0);
 
         aprilTag = new AprilTagProcessor.Builder()
@@ -77,15 +78,14 @@ public class CameraVision {
         //builder.setAutoStopLiveView(false);
 
 
-        telemetry.addData("status","camera initialized");
         // Set and enable the processor.
         builder.addProcessor(aprilTag);
 
         // Build the Vision Portal, using the above settings.
-        visionPortal = builder.build();
-
+        VisionPortal visionPortal = builder.build();
 
         FtcDashboard.getInstance().startCameraStream(visionPortal, 0);
+        telemetry.addData("CameraVision", "Initialized");
     }
 
     public List<org.firstinspires.ftc.vision.apriltag.AprilTagDetection> detect() {
