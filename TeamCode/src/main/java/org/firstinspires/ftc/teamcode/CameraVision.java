@@ -20,7 +20,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 import java.util.List;
 
 
-    @Config
+
     public class CameraVision {
         private final AprilTagProcessor aprilTag;
         public static String CAMERA_NAME = "Webcam 1";
@@ -125,11 +125,5 @@ import java.util.List;
                 }
             }
         }
-        // return 0 for nothing
-        // return -1 for error
-        // return 1-3 for each different ids
-
-//    public Pose3D getPose() {
-//
     }
 }
