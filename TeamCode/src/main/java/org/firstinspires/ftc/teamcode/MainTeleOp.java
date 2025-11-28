@@ -66,6 +66,9 @@ public class MainTeleOp extends OpMode {
         liftLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         liftRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
 
 
@@ -144,7 +147,7 @@ public class MainTeleOp extends OpMode {
             liftRight.setPower(0.0);
             telemetry.addData("Lift", "");
         }
-        if (liftRight.getPower() == maxLiftPower) {
+        if (liftRight.getCurrentPosition() == 767.2) {
             liftLeft.setPower(0);
             liftRight.setPower(0);
         }
