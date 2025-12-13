@@ -4,18 +4,24 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 @Config
 public class BallLaunch {
     public static String OUTTAKE_MOTOR_NAME = "outtake";
+
+    public static double revperticks = 28;
+    private Servo launchServo;
     private DcMotorEx outtake;
     private Telemetry telemetry;
 
     public BallLaunch(HardwareMap hardwareMap, Telemetry telemetry_) {
         telemetry = telemetry_;
         outtake = hardwareMap.get(DcMotorEx.class, OUTTAKE_MOTOR_NAME);
+        launchServo = hardwareMap.get(Servo.class, "servoName");
         outtake.setDirection(DcMotor.Direction.FORWARD);
+        outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         telemetry.addData("BallLaunch", "Initialized");
     }
 
@@ -29,7 +35,7 @@ public class BallLaunch {
     }
 
     public void launch() {
-        // launch
+
     }
 
     public void start() {
@@ -46,5 +52,10 @@ public class BallLaunch {
         // kinematics?
 
         return 0;
+
+    }
+    public double getTicksPerSec(){
+        double ticksVelocity = outtake.getVelocity();
+        return ticksVelocity*60/revperticks;
     }
 }
