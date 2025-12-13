@@ -31,6 +31,8 @@ public class MainAuto extends OpMode {
     public void loop() {
 
         telemetry.update();
+        //set target velocity to arbituary value
+
     }
 
     @Override
