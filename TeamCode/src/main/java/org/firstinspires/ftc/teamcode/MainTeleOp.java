@@ -20,11 +20,17 @@ public class MainTeleOp extends OpMode {
     private DcMotor backRight;
     private DcMotor intake;
     private BallLaunch ballLaunch;
-
     private DcMotor liftLeft;
     private DcMotor liftRight;
 
+    private ElapsedTime timerA = new ElapsedTime(); //timer for the ball launch
+
+    private ElapsedTime timerB = new ElapsedTime(); //timer for another mystery thing
     double maxLiftPower = 0.50;
+    boolean BallLaunchStatus;
+
+    double currentTime;
+
 
 
 
@@ -69,7 +75,7 @@ public class MainTeleOp extends OpMode {
         liftRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
+        BallLaunchStatus = false;
 
 
         telemetry.addData("Status", "Initialized");
@@ -88,6 +94,7 @@ public class MainTeleOp extends OpMode {
 
     @Override
     public void loop() {
+        //variables
         double y = -gamepad1.left_stick_y;
         double x = gamepad1.left_stick_x;
         double turn = gamepad1.right_stick_x;
@@ -105,14 +112,14 @@ public class MainTeleOp extends OpMode {
         double backLeftPower = power * sin / max + turn;
         double backRightPower = power * cos / max - turn;
 
-
+        //
         if ((power + Math.abs(turn)) > 1) {
             frontLeftPower /= power + Math.abs(turn);
             frontRightPower /= power + Math.abs(turn);
             backLeftPower /= power + Math.abs(turn);
             backRightPower /= power + Math.abs(turn);
         }
-
+        // controller keybinds
         frontLeft.setPower(frontLeftPower);
         frontRight.setPower(frontRightPower);
         backLeft.setPower(backLeftPower);
@@ -127,13 +134,19 @@ public class MainTeleOp extends OpMode {
         }
 
         if (gamepad1.dpad_up) {
-            ballLaunch.start();
+            if (!BallLaunchStatus){
+                timerA.reset();
+                ballLaunch.outtake.setVelocity(ballLaunch.targetVelocity);
+                BallLaunchStatus = true;
+            }
+            if (timerA.seconds() >= 2.0 && ballLaunch.targetVelocity <= ballLaunch.getRadPerSec()){
+                ballLaunch.launch();
+            }
         } else {
             ballLaunch.stop();
         }
 
-
-
+        //linear slides
         if (gamepad2.dpad_up && !gamepad2.dpad_down) {
             liftLeft.setPower(maxLiftPower);
             liftRight.setPower(maxLiftPower);
