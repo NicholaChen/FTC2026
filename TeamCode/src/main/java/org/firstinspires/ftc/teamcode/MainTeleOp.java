@@ -141,6 +141,7 @@ public class MainTeleOp extends OpMode {
             }
             if (timerA.seconds() >= 2.0 && ballLaunch.targetVelocity <= ballLaunch.getRadPerSec()){
                 ballLaunch.launch();
+                BallLaunchStatus = false;
             }
         } else {
             ballLaunch.stop();
