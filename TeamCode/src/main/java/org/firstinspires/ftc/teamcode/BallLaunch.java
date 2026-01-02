@@ -43,7 +43,7 @@ public class BallLaunch {
         return outtake.getVelocity()*2.0*Math.PI/revperticks;
     }
     public void launch() {
-        launchServo.setPosition(0.75);
+        launchServo.setPosition(0.4);
         telemetry.addData("BallLaunch", "Launched");
         outtake.setVelocity(0);
     }
