@@ -37,7 +37,7 @@ public class MainTeleOp extends OpMode {
     private DcMotorEx liftLeft;
     private DcMotorEx liftRight;
 
-    double maxLiftPower = 0.50;
+    double maxLiftPower = 0.75;
 
 
 
