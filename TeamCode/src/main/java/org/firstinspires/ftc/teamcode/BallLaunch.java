@@ -26,7 +26,7 @@ public class BallLaunch {
     public void stop() {
         telemetry.addData("BallLaunch", "Stopping");
         outtake.setPower(0.0);
-        launchServo.setPosition(0);
+        launchServo.setPosition(0.1);
         telemetry.addData("BallLaunch", "Stopped");
         telemetry.update();
     }
@@ -41,7 +41,7 @@ public class BallLaunch {
         return outtake.getVelocity()*2.0*Math.PI/revperticks;
     }
     public void launch() {
-        launchServo.setPosition(0.4);
+        launchServo.setPosition(0.6);
         telemetry.addData("BallLaunch", "Launched");
         outtake.setVelocity(0);
         telemetry.update();
