@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp(name = "Main TeleOp", group = "Main")
 public class MainTeleOp extends OpMode {
@@ -132,18 +133,11 @@ public class MainTeleOp extends OpMode {
             intake.setPower(0.0);
         }
 
-        if (gamepad1.dpad_up) {
-            if (!BallLaunchStatus){
-                timerA.reset();
-                ballLaunch.outtake.setVelocity(ballLaunch.targetVelocity);
-                BallLaunchStatus = true;
-            }
-            if (timerA.seconds() >= 2.0 && ballLaunch.targetVelocity <= ballLaunch.getRadPerSec()){
+        if (gamepad1.dpad_up){
+            ballLaunch.outtake.setVelocity((ballLaunch.targetVelocity), AngleUnit.RADIANS);
+            if (ballLaunch.getRadPerSec() >= ballLaunch.targetVelocity){
                 ballLaunch.launch();
-                BallLaunchStatus = false;
             }
-        } else {
-            ballLaunch.stop();
         }
 
         //linear slides

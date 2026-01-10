@@ -21,16 +21,14 @@ public class BallLaunch {
         outtake.setDirection(DcMotor.Direction.FORWARD);
         outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         telemetry.addData("BallLaunch", "Initialized");
-    }
-    public void start() {
-        telemetry.addData("BallLaunch", "Starting");
-        outtake.setPower(1.0);
+        telemetry.update();
     }
     public void stop() {
         telemetry.addData("BallLaunch", "Stopping");
         outtake.setPower(0.0);
         launchServo.setPosition(0);
         telemetry.addData("BallLaunch", "Stopped");
+        telemetry.update();
     }
     public int calculatePower(double distance) {
         // kinematics?
@@ -46,5 +44,6 @@ public class BallLaunch {
         launchServo.setPosition(0.4);
         telemetry.addData("BallLaunch", "Launched");
         outtake.setVelocity(0);
+        telemetry.update();
     }
 }
