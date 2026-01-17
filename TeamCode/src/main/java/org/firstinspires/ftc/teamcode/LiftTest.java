@@ -1,26 +1,32 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Config
+@Configurable
 @TeleOp(name = "Lift Test", group = "Main")
 public class LiftTest extends OpMode {
-    private final FtcDashboard dash = FtcDashboard.getInstance();
     private final ElapsedTime runtime = new ElapsedTime();
 
     private DcMotorEx liftLeft;
     private DcMotorEx liftRight;
 
+    private TelemetryManager telemetryM;
+
+    public static double liftPowerUp = 0.75;
+    public static double liftPowerDown = 0.1;
+
     @Override
     public void init() {
+        telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         liftLeft = hardwareMap.get(DcMotorEx.class, "lift_left");
         liftRight = hardwareMap.get(DcMotorEx.class, "lift_right");
 
@@ -28,7 +34,7 @@ public class LiftTest extends OpMode {
 
         // CHANGE
         liftLeft.setDirection(DcMotor.Direction.REVERSE);
-        liftRight.setDirection(DcMotor.Direction.REVERSE);
+        liftRight.setDirection(DcMotor.Direction.FORWARD);
 
 
 
@@ -56,15 +62,16 @@ public class LiftTest extends OpMode {
 
     @Override
     public void loop() {
-        TelemetryPacket packet = new TelemetryPacket();
+
+        telemetryM.update();
 
 
         if (gamepad2.dpad_up && !gamepad2.dpad_down) {
-            liftLeft.setPower(0.75);
-            liftRight.setPower(0.75);
+            liftLeft.setPower(liftPowerUp);
+            liftRight.setPower(liftPowerUp);
         } else if (gamepad2.dpad_down && !gamepad2.dpad_up) {
-            liftLeft.setPower(-0.1);
-            liftRight.setPower(-0.1);
+            liftLeft.setPower(-liftPowerDown);
+            liftRight.setPower(-liftPowerDown);
         } else {
             liftLeft.setPower(0);
             liftRight.setPower(0);
@@ -72,15 +79,11 @@ public class LiftTest extends OpMode {
 
 
 
-        telemetry.addData("Run Time", runtime);
+        telemetryM.debug("Run Time", runtime);
 
-        telemetry.addData("left lift Position", liftLeft.getCurrentPosition());
-        telemetry.addData("right lift Position", liftRight.getCurrentPosition());
-        telemetry.addData("lift power left/Right", "%4.2f, %4.2f", liftLeft.getPower(), liftRight.getPower());
-
-        telemetry.update();
-
-        dash.sendTelemetryPacket(packet);
+        telemetryM.debug("left lift Position", liftLeft.getCurrentPosition());
+        telemetryM.debug("right lift Position", liftRight.getCurrentPosition());
+        telemetryM.debug("lift power left/Right", "%4.2f, %4.2f", liftLeft.getPower(), liftRight.getPower());
     }
 
     @Override

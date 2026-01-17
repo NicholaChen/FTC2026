@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 public class PIDController {
     private double kP, kI, kD;
-    private double integral = 0;
+    private double I = 0;
     private double lastError = 0;
     private long lastTime = 0;
 
@@ -14,22 +14,31 @@ public class PIDController {
 
     public double update(double error) {
         long now = System.nanoTime();
-        double dt = (lastTime == 0) ? 0 : (now - lastTime) / 1e9;
-        lastTime = now;
 
-        if (dt > 0) {
-            integral += error * dt;
-            double derivative = (error - lastError) / dt;
+        if (lastTime == 0) {
+            lastTime = now;
             lastError = error;
-            return kP * error + kI * integral + kD * derivative;
+            return kP * error;
         }
 
+        double dt = (now - lastTime) * 1e-9;
+        lastTime = now;
+
+        if (dt <= 0) return 0;
+
+        // Integral
+        I += error * dt;
+        //integral = clamp(integral, -integralLimit, integralLimit);
+
+        // Derivative
+        double derivative = (error - lastError) / dt;
         lastError = error;
-        return kP * error;
+
+        return kP * error + kI * I + kD * derivative;
     }
 
     public void reset() {
-        integral = 0;
+        I = 0;
         lastError = 0;
         lastTime = 0;
     }

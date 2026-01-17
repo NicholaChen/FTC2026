@@ -5,7 +5,7 @@
 - Motor Port 1: Front Right Motor
 - Motor Port 2: Back Left Motor
 - Motor Port 3: Back Right Motor
-- Servo Port 0: Outtake Servo
+- Servo Port 0: Launch Servo
 - I2C0: (IMU)
 - I2C1: Pinpoint Computer
 - RS485: Expansion Hub
