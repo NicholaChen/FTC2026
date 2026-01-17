@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+// NC 2026
 
+package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,8 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 @Configurable
 public class Lift {
-    public DcMotorEx liftLeft;
-    public DcMotorEx liftRight;
+    private final DcMotorEx liftLeft;
+    private final DcMotorEx liftRight;
 
     public static double posP = 0.01;
     public static double posI = 0.0;
@@ -20,16 +21,15 @@ public class Lift {
 
     public static int upIncrement = 15;
     public static int downIncrement = 6;
-
+    public static int maxTicks = 2000;
+    public static int minTicks = -60;
     private final PIDController posPID  = new PIDController(posP, posI, posD);
     private final PIDController syncPID = new PIDController(syncP, syncI, syncD);
 
-    public int targetTicks = 0;
-    public double currentTicks = 0;
+    private int targetTicks = 0;
+    private int left = 0;
+    private int right = 0;
     private int prevTargetTicks = Integer.MIN_VALUE;
-
-    public static int maxTicks = 2000;
-    public static int minTicks = -60;
 
     public Lift(HardwareMap hardwareMap) {
         liftLeft = hardwareMap.get(DcMotorEx.class, "lift_left");
@@ -46,6 +46,8 @@ public class Lift {
 
         liftLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         liftRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        reset();
     }
 
     public void up() {
@@ -71,20 +73,18 @@ public class Lift {
             prevTargetTicks = targetTicks;
         }
 
-        int x1 = liftLeft.getCurrentPosition();
-        int x2 = liftRight.getCurrentPosition();
+        left = liftLeft.getCurrentPosition();
+        right = liftRight.getCurrentPosition();
 
-        currentTicks = (x1 + x2) / 2.0;
-
-        double avgPos = (x1 + x2) / 2.0;
+        double avgPos = (left + right) / 2.0;
         double ePos  = targetTicks - avgPos;
-        double eSync = x1 - x2;
+        double eSync = left - right;
 
         double uPos  = posPID.update(ePos);
         double uSync = syncPID.update(eSync);
 
-        double hold1 = (x1 >= 0) ? kHold : 0.0;
-        double hold2 = (x2 >= 0) ? kHold : 0.0;
+        double hold1 = (left >= 0) ? kHold : 0.0;
+        double hold2 = (right >= 0) ? kHold : 0.0;
 
         double power1 = uPos + uSync + hold1;
         double power2 = uPos - uSync + hold2;
@@ -99,5 +99,18 @@ public class Lift {
     public void reset() {
         posPID.reset();
         syncPID.reset();
+    }
+
+    public int getTargetTicks() {
+        return targetTicks;
+    }
+    public int getLeftTicks() {
+        return left;
+    }
+    public int getRightTicks() {
+        return right;
+    }
+    public void setTargetTicks(int ticks) {
+        targetTicks = ticks;
     }
 }

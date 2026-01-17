@@ -9,7 +9,6 @@ public class Globals {
 
     public static boolean isRed;
 
-    public static int startPosition;
 
     // startPosition = 0 is top
     // startPosition = 1 is bottom

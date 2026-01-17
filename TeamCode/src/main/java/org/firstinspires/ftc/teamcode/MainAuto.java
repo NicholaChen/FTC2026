@@ -7,14 +7,17 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-import org.firstinspires.ftc.teamcode.Globals;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous (name="Main Auto", group="Main")
-
+@Autonomous (name="Auto Bottom", group="Blue")
+@Disabled
 public class MainAuto extends OpMode {
+    public enum STATES {
+        INIT,
+
+    }
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private int pathState;
@@ -28,6 +31,7 @@ public class MainAuto extends OpMode {
     private Path scorePreload;
     private PathChain grabPickup1, scorePickup1, grabPickup2, scorePickup2, grabPickup3, scorePickup3;
 
+    private BallLaunch ballLaunch;
     public void buildPaths() {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
         scorePreload = new Path(new BezierLine(startPose, scorePose));
@@ -76,6 +80,7 @@ public class MainAuto extends OpMode {
             case 0:
                 follower.followPath(scorePreload);
                 setPathState(1);
+                ballLaunch.launchCount = 3;
                 break;
             case 1:
             /* You could check for
@@ -84,11 +89,13 @@ public class MainAuto extends OpMode {
             - Robot Position: "if(follower.getPose().getX() > 36) {}"
             */
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
+                if(!follower.isBusy()) { // launching
                     /* Score Preload */
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(grabPickup1,true);
                     setPathState(2);
+
+
                 }
                 break;
             case 2:
@@ -153,6 +160,7 @@ public class MainAuto extends OpMode {
 
     @Override
     public void init() {
+        ballLaunch = new BallLaunch(hardwareMap);
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
@@ -171,29 +179,7 @@ public class MainAuto extends OpMode {
 
     @Override
     public void init_loop() {
-        if (gamepad1.bWasPressed()) {
-            Globals.isRed = true;
-        }
-        if (gamepad1.xWasPressed()) {
-            Globals.isRed = false;
-        }
-        if (gamepad1.dpadUpWasPressed()) {
-            Globals.startPosition = 0;
-        }
-        if (gamepad1.dpadDownWasPressed()) {
-            Globals.startPosition = 1;
-        }
-        if (Globals.startPosition == 0) {
-            telemetry.addData("Start Position", "0");
-        } else {
-            telemetry.addData("Start Position", "1");
-        }
-        if (Globals.isRed) {
-            telemetry.addData("Alliance Colour", "Red");
-        } else {
-            telemetry.addData("Alliance Colour", "Blue");
-        }
-        telemetry.update();
+
     }
 
     @Override
@@ -221,6 +207,7 @@ public class MainAuto extends OpMode {
     public void loop() {
         follower.update();
         autonomousPathUpdate();
+        ballLaunch.update();
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
@@ -232,10 +219,8 @@ public class MainAuto extends OpMode {
 
     @Override
     public void stop() {
-//        Pose2d pose = drive.localizer.getPose();
-//
-//        Globals.PoseX = pose.position.x;
-//        Globals.PoseY = pose.position.y;
-//        Globals.PoseHeading = pose.heading.toDouble();
+        Globals.PoseX = follower.getPose().getX();
+        Globals.PoseY = follower.getPose().getY();
+        Globals.PoseHeading = follower.getPose().getHeading();
     }
 }

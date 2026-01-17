@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 public class PIDController {
-    private double kP, kI, kD;
+    private final double kP;
+    private final double kI;
+    private final double kD;
     private double I = 0;
     private double lastError = 0;
     private long lastTime = 0;
@@ -28,7 +30,6 @@ public class PIDController {
 
         // Integral
         I += error * dt;
-        //integral = clamp(integral, -integralLimit, integralLimit);
 
         // Derivative
         double derivative = (error - lastError) / dt;
