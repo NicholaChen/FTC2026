@@ -15,8 +15,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous (name="Blue Bottom", group="Blue")
 public class BlueBottomAuto extends OpMode {
-    private final Pose startPose = new Pose(57, 9, Math.toRadians(-90));
-    private final Pose launchPose = new Pose(63.300, 14.500, Math.toRadians(-157));
+    private final Pose startPose = new Pose(56.000, 9.000, Math.toRadians(-90));
+    private final Pose launchPose1 = new Pose(61.000, 25.000, Math.toRadians(-154));
+    private final Pose launchPose2 = new Pose(61.000, 84.000, Math.toRadians(-136));
     public enum STATES {
         INIT,
         TO_INITIAL_LAUNCH,
@@ -25,8 +26,11 @@ public class BlueBottomAuto extends OpMode {
         INTAKE_1,
         TO_LAUNCH_1,
         LAUNCH_1,
+        TO_INTAKE_2,
+        INTAKE_2,
+        TO_LAUNCH_2,
+        LAUNCH_2,
         END
-
     }
 
     private STATES currentState = STATES.INIT;
@@ -39,6 +43,9 @@ public class BlueBottomAuto extends OpMode {
     private PathChain ToIntake1;
     private PathChain Intake1;
     private PathChain ToLaunch1;
+    private PathChain ToIntake2;
+    private PathChain Intake2;
+    private PathChain ToLaunch2;
     private Supplier<PathChain> EndPathChain;
     private Timer opmodeTimer;
 
@@ -46,18 +53,18 @@ public class BlueBottomAuto extends OpMode {
         ToInitialLaunch = follower.pathBuilder().addPath(
                         new BezierLine(
                                 startPose,
-                                launchPose
+                                launchPose1
                         )
-                ).setLinearHeadingInterpolation(startPose.getHeading(), launchPose.getHeading())
+                ).setLinearHeadingInterpolation(startPose.getHeading(), launchPose1.getHeading())
                 .build();
 
         ToIntake1 = follower.pathBuilder().addPath(
                         new BezierCurve(
-                                launchPose,
-                                new Pose(launchPose.getX(), 36.000),
+                                launchPose1,
+                                new Pose(launchPose1.getX(), 36.000),
                                 new Pose(44.000, 36.000)
                         )
-                ).setLinearHeadingInterpolation(launchPose.getHeading(), Math.toRadians(180))
+                ).setLinearHeadingInterpolation(launchPose1.getHeading(), Math.toRadians(180))
                 .setNoDeceleration()
                 .build();
 
@@ -72,10 +79,45 @@ public class BlueBottomAuto extends OpMode {
         ToLaunch1 = follower.pathBuilder().addPath(
                         new BezierCurve(
                                 new Pose(9.000, 36.000),
-                                new Pose(launchPose.getX(), 36.000),
-                                launchPose
+                                new Pose(launchPose1.getX(), 36.000),
+                                launchPose1
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(180), launchPose.getHeading())
+                ).setLinearHeadingInterpolation(Math.toRadians(180), launchPose1.getHeading())
+                .build();
+        
+        ToIntake2 = follower.pathBuilder().addPath(
+                        new BezierCurve(
+                                launchPose1,
+                                new Pose(launchPose1.getX(), 60.000),
+                                new Pose(44.000, 60.000)
+                        )
+                ).setLinearHeadingInterpolation(launchPose1.getHeading(), Math.toRadians(180))
+                .setNoDeceleration()
+                .build();
+
+        Intake2 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(44.000, 60.000),
+                                new Pose(9.000, 60.000)
+                        )
+                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                .build();
+
+        ToLaunch2 = follower.pathBuilder().addPath(
+                        new BezierCurve(
+                                new Pose(9.000, 60.000),
+                                new Pose(launchPose2.getX(), 60.000),
+                                launchPose2
+                        )
+                ).setLinearHeadingInterpolation(Math.toRadians(180), launchPose2.getHeading())
+                .build();
+
+        EndPathChain = () -> follower.pathBuilder().addPath(
+                        new Path(new BezierLine(
+                                follower.getPose(),
+                                new Pose(48.000, 72.000)
+                        ))
+                ).setLinearHeadingInterpolation(follower.getHeading(), Math.toRadians(180))
                 .build();
     }
 
@@ -92,10 +134,6 @@ public class BlueBottomAuto extends OpMode {
         follower.setStartingPose(startPose);
 
         buildPaths();
-        EndPathChain = () -> follower.pathBuilder()
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(31.9, 26.4))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(225), 0.8))
-                .build();
     }
 
     @Override
@@ -153,6 +191,36 @@ public class BlueBottomAuto extends OpMode {
                 }
                 break;
             case LAUNCH_1:
+                if (ballLaunch.currentState == BallLaunch.STATES.IDLE) {
+                    follower.followPath(ToIntake2);
+                    currentState = STATES.TO_INTAKE_2;
+                } else {
+                    ballLaunch.launch(); // continuously try launching
+                }
+                break;
+            case TO_INTAKE_2:
+                if (!follower.isBusy()) {
+                    follower.followPath(Intake2);
+                    currentState = STATES.INTAKE_2;
+                    intake.pullIn();
+                }
+                break;
+            case INTAKE_2:
+                if (!follower.isBusy()) {
+                    intake.stop();
+                    follower.followPath(ToLaunch2);
+                    currentState = STATES.TO_LAUNCH_2;
+
+                    ballLaunch.setTargetVelocity(2000); // TODO
+                    ballLaunch.launchCount = 3;
+                }
+                break;
+            case TO_LAUNCH_2:
+                if (!follower.isBusy()) {
+                    currentState = STATES.LAUNCH_2;
+                }
+                break;
+            case LAUNCH_2:
                 if (ballLaunch.currentState == BallLaunch.STATES.IDLE) {
                     currentState = STATES.END;
                     follower.followPath(EndPathChain.get());
